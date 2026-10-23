@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123b32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HOPEG">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>HOPEG Precificador</title>
+<style>
+:root{--green:#123b32;--green2:#1e6654;--gold:#e2b65c;--bg:#f4f6f5;--card:#fff;--text:#17231f;--muted:#61716b;--line:#dce5e0;--red:#a52e2e;--soft:#f0f5f2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
+header{background:var(--green);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 14px;border-bottom:4px solid var(--gold)}
+header .brand{font-size:22px;font-weight:800;letter-spacing:.2px}
+header .brand span{color:var(--gold)}
+header p{margin:3px 0 0;color:#d7e5df;font-size:13px}
+main{max-width:900px;margin:auto;padding:14px 12px calc(40px + env(safe-area-inset-bottom))}
+nav{display:flex;gap:7px;overflow:auto;padding:0 0 12px;position:sticky;top:0;background:var(--bg);z-index:5}
+nav button{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--green);border-radius:999px;padding:10px 14px;font:inherit;font-weight:700}
+nav button.active{background:var(--green);color:#fff;border-color:var(--green)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin:0 0 13px;box-shadow:0 2px 8px #0e33200a}
+h2{font-size:18px;margin:0 0 6px}
+h3{font-size:14px;margin:0 0 10px;color:var(--green);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.block{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:14px;background:#fcfdfc}
+.block.fixed{border-left:5px solid var(--green2)}
+.block.variable{border-left:5px solid var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.full{grid-column:1/-1}
+label{display:block;font-size:12px;line-height:1.25;font-weight:700;color:var(--muted);margin-bottom:6px}
+.grid>div{display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+.grid>div.full{justify-content:flex-start}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cbd7d1;border-radius:9px;background:#fff;font:inherit;font-size:16px;color:var(--text);min-width:0}
+input,select{height:46px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px #1e66542e}
+textarea{min-height:80px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border:0;border-radius:10px;padding:0 16px;font:inherit;font-weight:800;background:var(--green);color:#fff;cursor:pointer}
+.btn.secondary{background:#e8efeb;color:var(--green);border:1px solid var(--line)}
+.btn.gold{background:var(--gold);color:#30230a}
+.btn.danger{background:#fff0f0;color:var(--red);border:1px solid #f1cccc}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.costrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.costrow .desc{grid-column:1/-1}
+.costrow .btn{padding:0 14px}
+.metricgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.metric{background:var(--soft);border-radius:11px;padding:12px}
+.metric small{display:block;color:var(--muted);font-weight:700}
+.metric strong{font-size:19px;color:var(--green);overflow-wrap:anywhere}
+.metric.price{background:var(--green);grid-column:1/-1}
+.metric.price small{color:#d7e5df}
+.metric.price strong{color:var(--gold);font-size:26px}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.warn{background:#fff7df;border:1px solid #f1df9c;padding:11px;border-radius:10px;font-size:13px;margin-bottom:12px}
+.err{color:var(--red);font-size:13px;margin:8px 0 0}
+.hidden{display:none!important}
+.item{border:1px solid var(--line);padding:12px;border-radius:10px;margin-top:9px}
+.itemhead{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}
+td{padding:8px 4px;border-bottom:1px solid var(--line)}
+td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+tr.sub td{background:var(--soft);font-weight:800}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#e8efeb;color:var(--green)}
+.badge.manual{background:#fff1cf;color:#6b4d0a}
+@media(min-width:650px){.costrow{grid-template-columns:2fr 1fr auto}.costrow .desc{grid-column:auto}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.metricgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.metric.price{grid-column:span 2}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">HOPEG <span>PRECIFICADOR</span></div>
+  <p>Custo fixo e variável por orçamento</p>
+</header>
+
+<main>
+<nav id="nav">
+  <button class="active" data-tab="painel">Painel</button>
+  <button data-tab="custos">Custos fixos</button>
+  <button data-tab="orcamento">Novo orçamento</button>
+  <button data-tab="historico">Histórico</button>
+  <button data-tab="backup">Backup</button>
+</nav>
+
+<!-- PAINEL -->
+<section id="painel" class="tab">
+  <div class="warn"><b>Importante:</b> os dados ficam guardados neste aparelho. Exporte um backup de vez em quando na aba <b>Backup</b>.</div>
+  <div class="card">
+    <h2>Resumo mensal</h2>
+    <div class="metricgrid">
+      <div class="metric"><small>Custos fixos cadastrados</small><strong id="mFixos">R$ 0,00</strong></div>
+      <div class="metric"><small>Capacidade produtiva/mês</small><strong id="mHoras">0 h</strong></div>
+      <div class="metric"><small>Custo fixo por hora</small><strong id="mHora">R$ 0,00</strong></div>
+      <div class="metric"><small>Orçamentos salvos</small><strong id="mQtd">0</strong></div>
+    </div>
+    <p class="note">O custo fixo por hora é a base para calcular o custo fixo de cada orçamento (horas do serviço × pessoas).</p>
+  </div>
+  <div class="card">
+    <h2>Como usar</h2>
+    <ol style="margin:8px 0 0;padding-left:20px">
+      <li>Em <b>Custos fixos</b>, confira as despesas mensais e a capacidade produtiva.</li>
+      <li>Em <b>Novo orçamento</b>, informe horas e equipe: o custo fixo do orçamento é calculado sozinho (você pode ajustar).</li>
+      <li>Preencha o custo variável (materiais, terceiros, deslocamento, outros).</li>
+      <li>Veja o preço, salve no histórico ou envie por WhatsApp.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- CUSTOS FIXOS -->
+<section id="custos" class="tab hidden">
+  <div class="card">
+    <h2>Custos mensais da empresa</h2>
+    <p class="note" style="margin-bottom:6px">Cada linha entra no total de custos fixos. Confira se salários e encargos não estão duplicados.</p>
+    <div id="costList"></div>
+    <div class="actions">
+      <button class="btn secondary" onclick="addCost()">+ Adicionar despesa</button>
+    </div>
+    <div class="block">
+      <h3>Capacidade e padrões</h3>
+      <div class="grid">
+        <div><label>Funcionários produtivos</label><input id="staffCount" type="number" inputmode="numeric" min="1"></div>
+        <div><label>Horas/mês por funcionário</label><input id="monthlyHours" type="number" inputmode="decimal" min="1"></div>
+        <div><label>Imposto padrão (%)</label><input id="defaultTax" type="number" inputmode="decimal" min="0" step=".1"></div>
+        <div><label>Margem padrão (%)</label><input id="defaultMargin" type="number" inputmode="decimal" min="0" step=".1"></div>
+      </div>
+      <p class="note">Custo fixo por hora = total de custos fixos ÷ (funcionários × horas por funcionário). Em cada orçamento, o custo fixo = custo fixo por hora × horas do serviço × pessoas no serviço.</p>
+    </div>
+    <div class="actions"><button class="btn" onclick="saveCosts()">Salvar custos</button></div>
+  </div>
+</section>
+
+<!-- NOVO ORÇAMENTO -->
+<section id="orcamento" class="tab hidden">
+  <div class="card">
+    <h2>Novo orçamento</h2>
+    <div class="grid" style="margin-top:10px">
+      <div class="full"><label>Cliente</label><input id="client" placeholder="Nome do cliente"></div>
+      <div class="full"><label>Serviço</label><input id="service" placeholder="Ex.: manutenção hidráulica"></div>
+      <div class="full"><label>Data</label><input id="date" type="date"></div>
+    </div>
+
+    <div class="block fixed">
+      <h3>Custo fixo do orçamento <span class="badge" id="fixedBadge">automático</span></h3>
+      <div class="grid">
+        <div><label>Duração (horas)</label><input id="hours" type="number" inputmode="decimal" min="0" step=".5" value="8"></div>
+        <div><label>Profissionais</label><input id="professionals" type="number" inputmode="numeric" min="0" step="1" value="1"></div>
+        <div><label>Ajudantes</label><input id="helpers" type="number" inputmode="numeric" min="0" step="1" value="0"></div>
+        <div class="full"><label>Custo fixo deste orçamento (R$)</label><input id="fixedManual" type="number" inputmode="decimal" min="0" step=".01" placeholder="Automático"></div>
+      </div>
+      <p class="note" id="fixedHint"></p><p class="note">Deixe o campo vazio para usar o valor automático.</p>
+    </div>
+
+    <div class="block variable">
+      <h3>Custo variável do orçamento</h3>
+      <div class="grid">
+        <div><label>Materiais (R$)</label><input id="materials" type="number" inputmode="decimal" min="0" step=".01" value="0"></div>
+        <div><label>Terceirizados (R$)</label><input id="outsourced" type="number" inputmode="decimal" min="0" step=".01" value="0"></div>
+        <div><label>Outros custos (R$)</label><input id="other" type="number" inputmode="decimal" min="0" step=".01" value="0"></div>
+        <div><label>Deslocamento (km total)</label><input id="km" type="number" inputmode="decimal" min="0" step=".1" value="0"></div>
+        <div><label>Consumo (km/L)</label><input id="kmpl" type="number" inputmode="decimal" min=".1" step=".1" value="8"></div>
+        <div><label>Combustível (R$/L)</label><input id="fuel" type="number" inputmode="decimal" min="0" step=".01" value="6"></div>
+      </div>
+      <p class="note" id="variableHint"></p>
+    </div>
+
+    <div class="block">
+      <h3>Preço</h3>
+      <div class="grid">
+        <div><label>Impostos (%)</label><input id="tax" type="number" inputmode="decimal" min="0" step=".1"></div>
+        <div><label>Margem desejada (%)</label><input id="margin" type="number" inputmode="decimal" min="0" step=".1"></div>
+        <div class="full"><label>Horas reais (preencher depois)</label><input id="actualHours" type="number" inputmode="decimal" min="0" step=".5" value="0"></div>
+        <div class="full"><label>Observações / condições</label><textarea id="notes" placeholder="Prazo, garantia, forma de pagamento..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="actions"><button class="btn gold" onclick="calculate()">Calcular orçamento</button></div>
+    <div id="calcResult" class="hidden" style="margin-top:14px"></div>
+    <div class="actions">
+      <button class="btn" onclick="saveQuote()">Salvar orçamento</button>
+      <button class="btn secondary" onclick="whatsappQuote()">WhatsApp</button>
+      <button class="btn secondary" onclick="resetQuote()">Limpar</button>
+    </div>
+    <p class="note">O preço é uma estimativa. A margem e o imposto são aplicados sobre o preço de venda.</p>
+  </div>
+</section>
+
+<!-- HISTÓRICO -->
+<section id="historico" class="tab hidden">
+  <div class="card"><h2>Histórico de orçamentos</h2><div id="historyList"></div></div>
+</section>
+
+<!-- BACKUP -->
+<section id="backup" class="tab hidden">
+  <div class="card">
+    <h2>Backup e restauração</h2>
+    <p>Exporte uma cópia dos custos e orçamentos. Guarde o arquivo em local seguro.</p>
+    <div class="actions">
+      <button class="btn" onclick="exportBackup()">Exportar backup</button>
+      <label class="btn secondary" style="cursor:pointer;margin:0">Importar backup<input type="file" accept="application/json,.json" style="display:none" onchange="importBackup(event)"></label>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+    <button class="btn danger" onclick="clearAll()">Apagar todos os dados deste aparelho</button>
+  </div>
+</section>
+
+<footer style="font-size:11px;color:var(--muted);text-align:center;padding:12px">HOPEG Precificador • Confira os cálculos antes de usar comercialmente.</footer>
+</main>
+
+<script>
+/* ============ DADOS ============ */
+const STORAGE_KEY = "hopegPrecificadorV1";
+const DEFAULT_COSTS = [
+  ["Pró-labore",8000],["Funcionário 1",2800],["Funcionário 2",3900],["Encargos trabalhistas",2260],
+  ["Ticket alimentação",1200],["Aluguel do escritório",800],["Contabilidade",600],["ERP e sistemas",800],
+  ["Manutenção de veículos",600],["Água, luz e utilidades",600],["EPIs",180],["Limpeza",200],
+  ["Seguro",400],["Cesta/benefícios",1500],["Depreciação de ferramentas",200],["Depreciação de veículos",500]
+];
+const freshState = () => ({
+  costs: DEFAULT_COSTS.map(([name,value]) => ({name,value})),
+  quotes: [], staffCount: 2, monthlyHours: 160, defaultTax: 4.5, defaultMargin: 30
+});
+
+function loadState(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch(e){}
+  const s = { ...freshState(), ...(saved || {}) };
+  // Migração: remove campos do antigo rateio diário
+  ["workingDays","servicesPerDay","allocationMode","team"].forEach(k => delete s[k]);
+  s.quotes = (s.quotes || []).map(migrateQuote);
+  return s;
+}
+// Orçamentos antigos (rateio diário/horas) ganham os campos novos sem perder dados
+function migrateQuote(q){
+  const fixed = q.fixed ?? q.fixedAllocated ?? 0;
+  const variable = q.variable ?? q.direct ?? 0;
+  const out = { ...q, fixed, variable };
+  delete out.allocationMode; delete out.workingDays; delete out.dayServices;
+  return out;
+}
+let state = loadState();
+let lastCalc = null;
+
+/* ============ UTILITÁRIOS ============ */
+const $ = id => document.getElementById(id);
+const money = n => (Number(n)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const num = id => Math.max(0, Number($(id).value) || 0);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const totalFixed = () => state.costs.reduce((s,c) => s + (+c.value || 0), 0);
+const capacity = () => (+state.staffCount || 1) * (+state.monthlyHours || 1);
+const fixedPerHour = () => totalFixed() / capacity();
+function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); refreshDashboard(); }
+
+/* ============ PAINEL ============ */
+function refreshDashboard(){
+  $("mFixos").textContent = money(totalFixed());
+  $("mHoras").textContent = capacity() + " h";
+  $("mHora").textContent = money(fixedPerHour());
+  $("mQtd").textContent = state.quotes.length;
+}
+
+/* ============ CUSTOS FIXOS ============ */
+function renderCosts(){
+  const el = $("costList");
+  el.innerHTML = "";
+  state.costs.forEach((c,i) => {
+    const d = document.createElement("div");
+    d.className = "item costrow";
+    d.innerHTML = `
+      <div class="desc"><label>Descrição</label><input value="${esc(c.name)}" data-cost-name="${i}"></div>
+      <div><label>Valor mensal (R$)</label><input type="number" inputmode="decimal" min="0" step=".01" value="${+c.value||0}" data-cost-val="${i}"></div>
+      <button class="btn danger" onclick="removeCost(${i})">Excluir</button>`;
+    el.appendChild(d);
+  });
+  $("staffCount").value = state.staffCount;
+  $("monthlyHours").value = state.monthlyHours;
+  $("defaultTax").value = state.defaultTax;
+  $("defaultMargin").value = state.defaultMargin;
+}
+function readCostsForm(){
+  document.querySelectorAll("[data-cost-name]").forEach(e => state.costs[+e.dataset.costName].name = e.value);
+  document.querySelectorAll("[data-cost-val]").forEach(e => state.costs[+e.dataset.costVal].value = Math.max(0, +e.value || 0));
+  state.staffCount = Math.max(1, +$("staffCount").value || 1);
+  state.monthlyHours = Math.max(1, +$("monthlyHours").value || 160);
+  state.defaultTax = Math.max(0, +$("defaultTax").value || 0);
+  state.defaultMargin = Math.max(0, +$("defaultMargin").value || 0);
+}
+function saveCosts(){ readCostsForm(); persist(); renderCosts(); updateHints(); alert("Custos salvos neste aparelho."); }
+function addCost(){ readCostsForm(); state.costs.push({name:"Nova despesa",value:0}); renderCosts(); }
+function removeCost(i){ readCostsForm(); state.costs.splice(i,1); persist(); renderCosts(); updateHints(); }
+
+/* ============ CÁLCULO DO ORÇAMENTO ============ */
+function computeQuote(){
+  const hours = num("hours"), professionals = num("professionals"), helpers = num("helpers");
+  const people = professionals + helpers;
+  const fixedAuto = fixedPerHour() * hours * people;
+  const manualRaw = $("fixedManual").value.trim();
+  const isManual = manualRaw !== "" && Number.isFinite(+manualRaw) && +manualRaw >= 0;
+  const fixed = isManual ? +manualRaw : fixedAuto;
+
+  const kmpl = num("kmpl") || 8;
+  const fuelCost = (num("km") / kmpl) * num("fuel");
+  const variable = num("materials") + num("outsourced") + num("other") + fuelCost;
+
+  const base = fixed + variable;
+  const tax = num("tax") / 100, margin = num("margin") / 100;
+  const divisor = 1 - tax - margin;
+  const price = divisor > 0 ? base / divisor : NaN;
+
+  return {
+    client: $("client").value, service: $("service").value, date: $("date").value, notes: $("notes").value,
+    hours, professionals, helpers, people,
+    materials: num("materials"), outsourced: num("outsourced"), other: num("other"),
+    km: num("km"), kmpl, fuel: num("fuel"), fuelCost,
+    fixedAuto, fixedManual: isManual ? +manualRaw : "", fixed, isManual, variable, base,
+    tax: num("tax"), margin: num("margin"), actualHours: num("actualHours"),
+    divisor, price, taxValue: price * tax, profit: price * margin
+  };
+}
+
+function updateHints(){
+  const hours = num("hours"), people = num("professionals") + num("helpers");
+  const auto = fixedPerHour() * hours * people;
+  $("fixedHint").textContent = `Automático: ${money(fixedPerHour())}/h × ${hours} h × ${people} pessoa(s) = ${money(auto)}.`;
+  const manual = $("fixedManual").value.trim() !== "";
+  $("fixedBadge").textContent = manual ? "manual" : "automático";
+  $("fixedBadge").className = "badge" + (manual ? " manual" : "");
+  const fuel = (num("km") / (num("kmpl") || 8)) * num("fuel");
+  $("variableHint").textContent = `Combustível calculado: ${money(fuel)}.`;
+}
+
+function calculate(){
+  const q = computeQuote();
+  lastCalc = q;
+  const ok = Number.isFinite(q.price) && q.people > 0;
+  const r = $("calcResult");
+  r.classList.remove("hidden");
+  r.innerHTML = `
+    <div class="metricgrid">
+      <div class="metric price"><small>Preço sugerido</small><strong>${ok ? money(q.price) : "Revise os dados"}</strong></div>
+      <div class="metric"><small>Imposto estimado</small><strong>${ok ? money(q.taxValue) : "—"}</strong></div>
+      <div class="metric"><small>Lucro estimado</small><strong>${ok ? money(q.profit) : "—"}</strong></div>
+    </div>
+    <table>
+      <tr><td>Custo fixo ${q.isManual ? "(manual)" : "(automático)"}</td><td>${money(q.fixed)}</td></tr>
+      <tr><td>Materiais</td><td>${money(q.materials)}</td></tr>
+      <tr><td>Terceirizados</td><td>${money(q.outsourced)}</td></tr>
+      <tr><td>Combustível</td><td>${money(q.fuelCost)}</td></tr>
+      <tr><td>Outros</td><td>${money(q.other)}</td></tr>
+      <tr class="sub"><td>Custo variável</td><td>${money(q.variable)}</td></tr>
+      <tr class="sub"><td>Custo total (fixo + variável)</td><td>${money(q.base)}</td></tr>
+    </table>
+    ${q.people === 0 ? '<p class="err">Informe pelo menos um profissional ou ajudante.</p>' : ""}
+    ${q.divisor <= 0 ? '<p class="err">A soma de imposto e margem precisa ser menor que 100%.</p>' : ""}`;
+}
+
+/* ============ SALVAR / ENVIAR ============ */
+function quoteText(q){
+  return `HOPEG MANUTENÇÕES E REFORMAS\nORÇAMENTO: ${q.service||"Serviço"}\nCliente: ${q.client||"Não informado"}\nData: ${q.date||"Não informada"}\n\nValor: ${money(q.price)}\nPrazo/observações: ${q.notes||"A combinar"}\n\nOrçamento sujeito à confirmação após avaliação do serviço.`;
+}
+function validQuote(){
+  calculate();
+  if (!Number.isFinite(lastCalc.price) || lastCalc.price <= 0 || lastCalc.people === 0){
+    alert("Revise os dados: informe a equipe e confira imposto + margem (menor que 100%).");
+    return false;
+  }
+  return true;
+}
+function saveQuote(){
+  if (!validQuote()) return;
+  state.quotes.unshift({ ...lastCalc, id: Date.now(), created: new Date().toISOString() });
+  persist(); renderHistory();
+  alert("Orçamento salvo no histórico.");
+}
+function whatsappQuote(){
+  if (!validQuote()) return;
+  window.open("https://wa.me/?text=" + encodeURIComponent(quoteText(lastCalc)), "_blank");
+}
+
+/* ============ HISTÓRICO ============ */
+function renderHistory(){
+  const el = $("historyList");
+  if (!state.quotes.length){ el.innerHTML = '<p class="note">Nenhum orçamento salvo ainda.</p>'; return; }
+  el.innerHTML = "";
+  state.quotes.forEach(q => {
+    const d = document.createElement("div");
+    d.className = "item";
+    d.innerHTML = `
+      <div class="itemhead"><span>${esc(q.service||"Serviço")} — ${money(q.price)}</span><span class="note" style="margin:0">${esc(q.date||"")}</span></div>
+      <p style="margin:6px 0">Cliente: ${esc(q.client||"Não informado")}<br>
+      Fixo: ${money(q.fixed)} • Variável: ${money(q.variable)}<br>
+      ${q.professionals||0} prof. + ${q.helpers||0} ajud. • ${q.hours||0} h • Real: ${q.actualHours||0} h</p>
+      <div class="actions">
+        <button class="btn secondary" onclick="reuseQuote(${q.id})">Abrir novamente</button>
+        <button class="btn secondary" onclick="sendSaved(${q.id})">WhatsApp</button>
+        <button class="btn danger" onclick="deleteQuote(${q.id})">Excluir</button>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+function reuseQuote(id){
+  const q = state.quotes.find(x => x.id === id);
+  if (!q) return;
+  ["client","service","date","hours","professionals","helpers","materials","outsourced","other","km","kmpl","fuel","tax","margin","actualHours","notes"]
+    .forEach(k => { const e = $(k); if (e) e.value = q[k] ?? ""; });
+  $("fixedManual").value = q.isManual ? q.fixedManual : "";
+  showTab("orcamento"); updateHints(); calculate();
+}
+function sendSaved(id){ const q = state.quotes.find(x => x.id === id); if (q) window.open("https://wa.me/?text=" + encodeURIComponent(quoteText(q)), "_blank"); }
+function deleteQuote(id){ if (confirm("Excluir este orçamento?")){ state.quotes = state.quotes.filter(q => q.id !== id); persist(); renderHistory(); } }
+
+function resetQuote(){
+  ["client","service","notes","fixedManual"].forEach(k => $(k).value = "");
+  ["materials","outsourced","other","km","actualHours","helpers"].forEach(k => $(k).value = 0);
+  $("hours").value = 8; $("professionals").value = 1; $("kmpl").value = 8; $("fuel").value = 6;
+  $("tax").value = state.defaultTax; $("margin").value = state.defaultMargin;
+  $("date").value = new Date().toISOString().slice(0,10);
+  lastCalc = null; $("calcResult").classList.add("hidden"); updateHints();
+}
+
+/* ============ BACKUP ============ */
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "hopeg-precificador-backup.json"; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importBackup(e){
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const x = JSON.parse(rd.result);
+      if (!x.costs || !x.quotes) throw Error();
+      state = { ...freshState(), ...x };
+      ["workingDays","servicesPerDay","allocationMode","team"].forEach(k => delete state[k]);
+      state.quotes = state.quotes.map(migrateQuote);
+      persist(); renderCosts(); renderHistory(); resetQuote();
+      alert("Backup importado com sucesso.");
+    } catch(err){ alert("Arquivo inválido. Selecione um backup do HOPEG Precificador."); }
+  };
+  rd.readAsText(f); e.target.value = "";
+}
+function clearAll(){
+  if (!confirm("Isso apagará custos e orçamentos salvos neste aparelho. Continuar?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = freshState(); persist(); renderCosts(); renderHistory(); resetQuote();
+}
+
+/* ============ NAVEGAÇÃO ============ */
+function showTab(tab){
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll(".tab").forEach(s => s.classList.toggle("hidden", s.id !== tab));
+  if (tab === "historico") renderHistory();
+  if (tab === "orcamento") updateHints();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+["hours","professionals","helpers","fixedManual","km","kmpl","fuel"].forEach(id => $(id).addEventListener("input", updateHints));
+
+/* ============ INÍCIO ============ */
+renderCosts(); renderHistory(); resetQuote(); refreshDashboard();
+persist();
+
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
